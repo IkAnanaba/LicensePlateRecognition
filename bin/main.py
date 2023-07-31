@@ -1,12 +1,14 @@
+import sys
 import time
 
 from ultralytics import YOLO
 import cv2
-import numpy as np
 
-import util
-from sort.sort import *
-from util import get_car, read_license_plate, write_csv
+# import numpy as np
+# import util
+# from sort.sort import *
+
+from util import read_license_plate  # , write_csv, get_car
 
 from threading import Thread
 
@@ -22,34 +24,42 @@ class LicensePlateRecognition:
     -------
     video_stream()
         Reads frames from a video stream, draws bounding boxes and displays the frame
+
+    car_recognition()
+        Gets the locations of the license plates in the image and reads from the plates
+
+    --- Both methods run independently of one another, the car_recognition pulls frames when it is ready
     """
 
     def __init__(self):
-        self.tracker = Sort()
+        # Variables for models and tracker
+        # self.tracker = Sort()
         self.license_plate_detector = YOLO('./models/license_plate_detector.pt')
         self.car_detector = YOLO('yolov8s.pt')
 
+        # variables for display
         self.vid_stream = cv2.VideoCapture('./sample.mp4')
-        # self.vid_stream = cv2.VideoCapture(0)
         self.main_frame = "License Plate Recognition"
 
-        self.eligible_vehicles = [2, 3, 5, 7]
+        # self.eligible_vehicles = [2, 3, 5, 7]
         self.detections = []
         self.latest_frame = None
 
+        # Variables for image collection and processing
         self.plate_image = None
         self.plate_images = []
         self.image_size_up = 50
         self.image_scale = 2
 
+        # Variables for logging and benchmarking
+        self.last_time = time.time()
         self.running = True
 
+        # Variables for handling threads
         self.video_stream_thread = Thread(target=self.video_stream)
         self.car_detection_thread = Thread(target=self.car_recognition)
-        # self.license_plate_extractor_thread = Thread(target=self.license_plate_extractor)
         self.video_stream_thread.start()
         self.car_detection_thread.start()
-        # self.license_plate_extractor_thread.start()
 
     def video_stream(self):
         while self.running:
@@ -59,22 +69,6 @@ class LicensePlateRecognition:
             if not ret:
                 self.running = False
                 break
-
-            for detection in self.detections:
-                x1, y1, x2, y2, id = detection
-
-                # x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-                #
-                # frame = cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 4)
-                # frame = cv2.putText(
-                #     frame,
-                #     f"Id {int(id)}",
-                #     (x1, y1),
-                #     cv2.FONT_HERSHEY_SIMPLEX,
-                #     1,
-                #     (0, 0, 255),
-                #     2,
-                # )
 
             frame = cv2.resize(frame, (640, 360))
             cv2.imshow(self.main_frame, frame)
@@ -87,6 +81,7 @@ class LicensePlateRecognition:
 
         print("Video stream ended")
         self.running = False
+        sys.exit()
 
     def car_recognition(self):
         while self.running:
@@ -104,13 +99,15 @@ class LicensePlateRecognition:
                 try:
                     plate_image = frame[int(y1 - self.image_size_up):int(y2 + self.image_size_up),
                                         int(x1 - self.image_size_up):int(x2 + self.image_size_up)]
-                except:
+                except Exception as e:
+                    print(f"Exception: {e}")
                     plate_image = frame[int(y1 - self.image_size_up/2):int(y2 + self.image_size_up/2),
                                         int(x1 - self.image_size_up/2):int(x2 + self.image_size_up/2)]
 
                 # scale license plate
                 # plate_image = cv2.resize(plate_image, (int(plate_image.shape[1] * self.image_scale),
                 #                                        int(plate_image.shape[0] * self.image_scale)))
+
                 # process license plate
                 plate_img = cv2.cvtColor(plate_image, cv2.COLOR_BGR2GRAY)
                 _, plate_img = cv2.threshold(plate_img, 64, 255, cv2.THRESH_BINARY_INV)
@@ -120,19 +117,16 @@ class LicensePlateRecognition:
 
                 if license_plate_text is not None:
                     print(license_plate_text)
+                    with open('license_plates.txt', 'r+') as file:
+                        licenses = file.read()
+                        # print(licenses)
+                        if license_plate_text not in licenses:
+                            file.write(license_plate_text + "\n")
+                            print("Written to file")
 
-    def license_plate_extractor(self):
-        while self.running:
-            for image in self.plate_images:
-                # process license plate
-                plate_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                _, plate_img = cv2.threshold(plate_img, 64, 255, cv2.THRESH_BINARY_INV)
-
-                # read license plate number
-                license_plate_text, license_plate_text_score = read_license_plate(plate_img)
-
-                print(license_plate_text)
-                self.plate_images.remove(image)
+            # now = time.time()
+            # print(f"Time: {now - self.last_time} secs")
+            # self.last_time = now
 
 
 if __name__ == '__main__':
