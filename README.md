@@ -20,7 +20,7 @@ there are no special dependencies.
 1. To use the model, you need to have a video prepared that contains cars with visible license plates
 1. In the main.py file, in the initialisation function of the LicensePlateRecognition class, the path string of the video must be replaces with the path to your video
 
-## Acknowlegement
+## Sources
 
 The basis of the project was formed from the understanding of how to use YOLO models.
 One of the modules making the project work was also from the github repository linked below
