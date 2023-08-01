@@ -70,7 +70,7 @@ class LicensePlateRecognition:
                 self.running = False
                 break
 
-            frame = cv2.resize(frame, (640, 360))
+            frame = cv2.resize(frame, (int(1280*.8), int(720*.8)))
             cv2.imshow(self.main_frame, frame)
             if self.plate_image is not None:
                 cv2.imshow("temp Frame", self.plate_image)
@@ -127,6 +127,28 @@ class LicensePlateRecognition:
             # now = time.time()
             # print(f"Time: {now - self.last_time} secs")
             # self.last_time = now
+
+'''
+        IN PROGRESS
+'''
+class LicensePlateList:
+    def __init__(self):
+        self._plate_numbers = {}
+
+    def __iadd__(self, plate_no):
+        if not self._match(plate_no):
+            self._plate_numbers[plate_no] = plate_no
+
+    def __str__(self):
+        return self._plate_numbers
+
+    def __repr__(self):
+        return self._plate_numbers
+
+    def _match(self, plate_no):
+        for no in self._plate_numbers:
+            pass
+        return False
 
 
 if __name__ == '__main__':
