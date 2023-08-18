@@ -35,7 +35,7 @@ class LicensePlateRecognition:
         # Variables for models and tracker
         # self.tracker = Sort()
         self.license_plate_detector = YOLO('./models/license_plate_detector.pt')
-        self.car_detector = YOLO('yolov8s.pt')
+        # self.car_detector = YOLO('yolov8s.pt')
 
         # variables for display
         self.vid_stream = cv2.VideoCapture('./sample.mp4')
@@ -128,9 +128,12 @@ class LicensePlateRecognition:
             # print(f"Time: {now - self.last_time} secs")
             # self.last_time = now
 
+
 '''
         IN PROGRESS
 '''
+
+
 class LicensePlateList:
     def __init__(self):
         self._plate_numbers = {}
