@@ -1,5 +1,6 @@
 import sys
 import time
+import os
 
 from ultralytics import YOLO
 import cv2
@@ -8,7 +9,7 @@ import cv2
 # import util
 # from sort.sort import *
 
-from util import read_license_plate  # , write_csv, get_car
+from util2 import read_license_plate  # , write_csv, get_car
 
 from threading import Thread
 
@@ -34,11 +35,11 @@ class LicensePlateRecognition:
     def __init__(self):
         # Variables for models and tracker
         # self.tracker = Sort()
-        self.license_plate_detector = YOLO('./models/license_plate_detector.pt')
+        self.license_plate_detector = YOLO(os.path.dirname(os.path.abspath('C:/Users/user/Documents/Programming/IT/LicensePlateRecognition/bin/license_plate_detector.pt')))
         self.car_detector = YOLO('yolov8s.pt')
 
         # variables for display
-        self.vid_stream = cv2.VideoCapture('./sample.mp4')
+        self.vid_stream = cv2.VideoCapture('sample.mp4')
         self.main_frame = "License Plate Recognition"
 
         # self.eligible_vehicles = [2, 3, 5, 7]
@@ -63,7 +64,9 @@ class LicensePlateRecognition:
 
     def video_stream(self):
         while self.running:
+            print(type(self.vid_stream))
             ret, frame = self.vid_stream.read()
+            print(type(frame))
             self.latest_frame = frame.copy()
 
             if not ret:
