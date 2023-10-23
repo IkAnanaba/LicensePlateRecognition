@@ -9,7 +9,7 @@ import cv2
 # import util
 # from sort.sort import *
 
-from util2 import read_license_plate  # , write_csv, get_car
+from util import read_license_plate  # , write_csv, get_car
 
 from threading import Thread
 
