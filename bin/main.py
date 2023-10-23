@@ -9,7 +9,8 @@ import cv2
 # import util
 # from sort.sort import *
 
-from util import read_license_plate  # , write_csv, get_car
+# from util import read_license_plate  # , write_csv, get_car
+from util2 import read_license_plate  # , write_csv, get_car
 
 from threading import Thread
 
@@ -131,9 +132,12 @@ class LicensePlateRecognition:
             # print(f"Time: {now - self.last_time} secs")
             # self.last_time = now
 
+
 '''
         IN PROGRESS
 '''
+
+
 class LicensePlateList:
     def __init__(self):
         self._plate_numbers = {}
